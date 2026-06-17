@@ -1,0 +1,8 @@
+@if (roomId) {
+  <app-video-call [roomId]="roomId" />
+} @else {
+  <div class="empty-state">
+    <div class="empty-icon">⚠️</div>
+    <h3>Invalid room</h3>
+  </div>
+}

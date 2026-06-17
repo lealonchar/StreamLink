@@ -1,0 +1,43 @@
+<div class="page home-page">
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1>Explore Rooms</h1>
+        <p class="page-subtitle">Discover active video rooms and join the conversation</p>
+      </div>
+      @if (authService.isAuthenticated()) {
+        <button class="btn btn-primary" (click)="openCreateModal()">+ Create Room</button>
+      }
+    </div>
+
+    @if (isLoading()) {
+      <div class="skeleton-grid">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <div class="skeleton-card"></div>
+        }
+      </div>
+    } @else if (error()) {
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <h3>Something went wrong</h3>
+        <p>{{ error() }}</p>
+      </div>
+    } @else if (rooms().length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">🏠</div>
+        <h3>No active rooms</h3>
+        <p>Be the first to create a room and start a conversation.</p>
+      </div>
+    } @else {
+      <div class="rooms-grid">
+        @for (room of rooms(); track room.id) {
+          <app-room-card [room]="room" />
+        }
+      </div>
+    }
+  </div>
+</div>
+
+@if (showCreateModal()) {
+  <app-create-room-modal (onClose)="closeCreateModal()" (onCreated)="onRoomCreated()" />
+}

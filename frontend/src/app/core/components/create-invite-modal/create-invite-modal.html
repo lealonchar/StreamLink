@@ -1,0 +1,27 @@
+<div class="modal-overlay" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Create Invite Link</h2>
+      <button class="modal-close" (click)="close()">&times;</button>
+    </div>
+    <div class="modal-body">
+      @if (error()) {
+        <div class="form-error">{{ error() }}</div>
+      }
+      <div class="form-group">
+        <label for="max-uses">Max Uses</label>
+        <input id="max-uses" type="number" [(ngModel)]="maxUses" [min]="AppConstants.MIN_INVITE_MAX_USES" [max]="AppConstants.MAX_INVITE_MAX_USES" placeholder="Default: {{ AppConstants.DEFAULT_INVITE_MAX_USES }}" />
+      </div>
+      <div class="form-group">
+        <label for="expiry-hours">Expiry (hours)</label>
+        <input id="expiry-hours" type="number" [(ngModel)]="expiryHours" [min]="AppConstants.MIN_INVITE_EXPIRY_HOURS" [max]="AppConstants.MAX_INVITE_EXPIRY_HOURS" placeholder="Default: {{ AppConstants.DEFAULT_INVITE_EXPIRY_HOURS }}" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="close()">Cancel</button>
+      <button class="btn btn-primary" [disabled]="isSubmitting()" (click)="submit()">
+        {{ isSubmitting() ? 'Creating...' : 'Create Invite' }}
+      </button>
+    </div>
+  </div>
+</div>

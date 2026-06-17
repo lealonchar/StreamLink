@@ -1,0 +1,30 @@
+<div class="auth-page">
+  <div class="auth-card card">
+    <div class="auth-header">
+      <h1>Welcome back</h1>
+      <p>Log in to your account to continue</p>
+    </div>
+
+    @if (error()) {
+      <div class="auth-error">{{ error() }}</div>
+    }
+
+    <form (ngSubmit)="submit()">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input id="username" type="text" [(ngModel)]="username" name="username" [minlength]="AppConstants.MIN_USERNAME_LENGTH" [maxlength]="AppConstants.MAX_USERNAME_LENGTH" placeholder="Enter your username" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" type="password" [(ngModel)]="password" name="password" [minlength]="AppConstants.MIN_PASSWORD_LENGTH" [maxlength]="AppConstants.MAX_PASSWORD_LENGTH" placeholder="Enter your password" required />
+      </div>
+      <button type="submit" class="btn btn-primary submit-btn" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Logging in...' : 'Log in' }}
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p>Don't have an account? <a [routerLink]="['/' + RouteConstants.REGISTER]">Sign up</a></p>
+    </div>
+  </div>
+</div>

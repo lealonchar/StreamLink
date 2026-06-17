@@ -1,0 +1,10 @@
+@use 'variables' as *;
+
+.form-error {
+  background: rgba($danger, 0.08);
+  color: $danger;
+  padding: 0.75rem 1rem;
+  border-radius: $radius;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}

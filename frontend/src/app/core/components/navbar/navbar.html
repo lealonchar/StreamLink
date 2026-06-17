@@ -1,0 +1,25 @@
+<nav class="navbar">
+  <div class="navbar-brand">
+    <a [routerLink]="['/' + routeConstants.HOME]" class="brand-link">
+      <span class="brand-icon">📹</span>
+      <span class="brand-name">{{ appName }}</span>
+    </a>
+  </div>
+
+  <div class="navbar-links">
+    <a [routerLink]="['/' + routeConstants.HOME]" routerLinkActive="active" class="nav-link">Explore</a>
+    @if (authService.isAuthenticated()) {
+      <a [routerLink]="['/' + routeConstants.MY_ROOMS]" routerLinkActive="active" class="nav-link">My Rooms</a>
+    }
+  </div>
+
+  <div class="navbar-actions">
+    @if (authService.isAuthenticated()) {
+      <span class="user-name">{{ authService.currentUser()?.name }}</span>
+      <button class="btn btn-ghost" (click)="logout()">Logout</button>
+    } @else {
+      <a [routerLink]="['/' + routeConstants.LOGIN]" class="btn btn-ghost">Log in</a>
+      <a [routerLink]="['/' + routeConstants.REGISTER]" class="btn btn-primary">Sign up</a>
+    }
+  </div>
+</nav>

@@ -1,0 +1,70 @@
+<div class="page room-detail-page">
+  <div class="container">
+    @if (isLoading()) {
+      <div class="skeleton-detail"></div>
+    } @else if (error()) {
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <h3>{{ error() }}</h3>
+        <a [routerLink]="['/' + RouteConstants.HOME]" class="btn btn-primary">Back to Home</a>
+      </div>
+    } @else if (room()) {
+      <div class="room-detail">
+        <div class="detail-header">
+          <div>
+            <div class="detail-badges">
+              <span class="badge" [class.badge-success]="room()!.status === RoomStatus.ACTIVE" [class.badge-muted]="room()!.status === RoomStatus.CLOSED">
+                {{ room()!.status }}
+              </span>
+              <span class="badge badge-muted">{{ room()!.participants.length }} participant(s)</span>
+            </div>
+            <h1>{{ room()!.name }}</h1>
+            @if (room()!.description) {
+              <p class="detail-description">{{ room()!.description }}</p>
+            }
+            <p class="detail-meta">
+              Hosted by <strong>{{ room()!.createdBy.name }}</strong> &middot; {{ room()!.createdAt | date: 'mediumDate' }}
+            </p>
+          </div>
+          <div class="detail-actions">
+            @if (room()!.status === RoomStatus.ACTIVE && authService.isAuthenticated()) {
+              <button class="btn btn-primary" [disabled]="actionLoading()" (click)="joinRoom()">
+                {{ actionLoading() ? 'Joining...' : 'Join Call' }}
+              </button>
+            }
+            @if (isHost() && room()!.status === RoomStatus.ACTIVE) {
+              <button class="btn btn-secondary" (click)="openInviteModal()">Create Invite</button>
+              <button class="btn btn-danger" [disabled]="actionLoading()" (click)="closeRoom()">
+                Close Room
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-main">
+            <app-participant-list [participants]="room()!.participants" />
+          </div>
+          @if (isHost()) {
+            <div class="detail-sidebar">
+              <h3>Invite Links</h3>
+              @if (invites().length === 0) {
+                <p class="sidebar-empty">No invites yet. Create one to share.</p>
+              } @else {
+                <div class="invites-list">
+                  @for (invite of invites(); track invite.id) {
+                    <app-invite-card [invite]="invite" [canRevoke]="true" (onRevoke)="revokeInvite($event)" (onCopy)="copyLink($event)" />
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+@if (showInviteModal() && room()) {
+  <app-create-invite-modal [roomId]="room()!.id" (onClose)="closeInviteModal()" (onCreated)="onInviteCreated()" />
+}

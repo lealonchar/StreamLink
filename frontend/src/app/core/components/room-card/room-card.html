@@ -1,0 +1,15 @@
+<a [routerLink]="RouteConstants.ROOM_DETAIL_ROUTE(room().id)" class="room-card">
+  <div class="room-header">
+    <h3 class="room-name">{{ room().name }}</h3>
+    <span class="badge" [class.badge-success]="room().status === RoomStatus.ACTIVE" [class.badge-muted]="room().status === RoomStatus.CLOSED">
+      {{ room().status }}
+    </span>
+  </div>
+  @if (room().description) {
+    <p class="room-description">{{ room().description }}</p>
+  }
+  <div class="room-footer">
+    <span class="room-host">Hosted by {{ room().createdBy.name }}</span>
+    <span class="room-date">{{ room().createdAt | date: 'mediumDate' }}</span>
+  </div>
+</a>

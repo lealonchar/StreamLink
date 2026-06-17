@@ -1,0 +1,27 @@
+<div class="modal-overlay" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Create Room</h2>
+      <button class="modal-close" (click)="close()">&times;</button>
+    </div>
+    <div class="modal-body">
+      @if (error()) {
+        <div class="form-error">{{ error() }}</div>
+      }
+      <div class="form-group">
+        <label for="room-name">Room Name</label>
+        <input id="room-name" type="text" [(ngModel)]="name" [maxlength]="AppConstants.MAX_ROOM_NAME_LENGTH" placeholder="e.g. Team Standup" />
+      </div>
+      <div class="form-group">
+        <label for="room-desc">Description</label>
+        <textarea id="room-desc" [(ngModel)]="description" [maxlength]="AppConstants.MAX_ROOM_DESCRIPTION_LENGTH" placeholder="What's this room about?"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="close()">Cancel</button>
+      <button class="btn btn-primary" [disabled]="isSubmitting()" (click)="submit()">
+        {{ isSubmitting() ? 'Creating...' : 'Create Room' }}
+      </button>
+    </div>
+  </div>
+</div>

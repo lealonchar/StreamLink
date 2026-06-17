@@ -1,0 +1,40 @@
+<div class="page invite-page">
+  <div class="container">
+    @if (isLoading()) {
+      <div class="skeleton-card" style="height: 200px;"></div>
+    } @else if (error()) {
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <h3>{{ error() }}</h3>
+        <a [routerLink]="['/' + RouteConstants.HOME]" class="btn btn-primary">Back to Home</a>
+      </div>
+    } @else if (invite()) {
+      <div class="invite-card card">
+        <div class="invite-header">
+          <h1>You're invited!</h1>
+          <span class="badge"
+            [class.badge-success]="invite()!.status === InviteStatus.ACTIVE"
+            [class.badge-danger]="invite()!.status !== InviteStatus.ACTIVE">
+            {{ invite()!.status }}
+          </span>
+        </div>
+        <p class="invite-info">
+          Join the room <strong>{{ invite()!.roomId }}</strong> via invite link.
+        </p>
+        <div class="invite-meta-row">
+          <span>Uses: {{ invite()!.useCount }} / {{ invite()!.maxUses }}</span>
+          <span>Expires: {{ invite()!.expiresAt | date: 'medium' }}</span>
+        </div>
+        <div class="invite-actions-row">
+          @if (authService.isAuthenticated()) {
+            <button class="btn btn-primary" [disabled]="isJoining() || invite()!.status !== InviteStatus.ACTIVE" (click)="join()">
+              {{ isJoining() ? 'Joining...' : 'Accept Invite' }}
+            </button>
+          } @else {
+            <a [routerLink]="['/' + RouteConstants.LOGIN]" class="btn btn-primary">Log in to Join</a>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

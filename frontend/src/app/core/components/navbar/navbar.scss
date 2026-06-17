@@ -1,0 +1,63 @@
+@use 'variables' as *;
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  background: rgba($surface, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid $border;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-brand {
+  .brand-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: $text;
+    font-weight: 700;
+    font-size: 1.25rem;
+  }
+
+  .brand-icon {
+    font-size: 1.5rem;
+  }
+}
+
+.navbar-links {
+  display: flex;
+  gap: 0.25rem;
+
+  .nav-link {
+    padding: 0.5rem 1rem;
+    border-radius: $radius;
+    text-decoration: none;
+    color: $text-muted;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+
+    &:hover,
+    &.active {
+      color: $text;
+      background: $surface-hover;
+    }
+  }
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  .user-name {
+    font-size: 0.875rem;
+    color: $text-muted;
+    font-weight: 500;
+  }
+}

@@ -1,0 +1,21 @@
+<div class="invite-card">
+  <div class="invite-header">
+    <code class="invite-token">{{ invite().token }}</code>
+    <span class="badge"
+      [class.badge-success]="invite().status === InviteStatus.ACTIVE"
+      [class.badge-danger]="invite().status === InviteStatus.EXPIRED || invite().status === InviteStatus.DISABLED"
+      [class.badge-warning]="invite().status === InviteStatus.USED">
+      {{ invite().status }}
+    </span>
+  </div>
+  <div class="invite-meta">
+    <span>Uses: {{ invite().useCount }} / {{ invite().maxUses }}</span>
+    <span>Expires: {{ invite().expiresAt | date: 'short' }}</span>
+  </div>
+  <div class="invite-actions">
+    <button class="btn btn-secondary btn-sm" (click)="copyLink()">Copy Link</button>
+    @if (canRevoke()) {
+      <button class="btn btn-danger btn-sm" (click)="revoke()">Revoke</button>
+    }
+  </div>
+</div>
