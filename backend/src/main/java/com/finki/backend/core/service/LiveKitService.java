@@ -29,15 +29,15 @@ public class LiveKitService {
         return "room-" + UUID.randomUUID();
     }
 
-    public String createParticipantToken(String roomName, String displayName) {
+    public String createParticipantToken(String roomName, String participantIdentity, String displayName) {
         try {
             AccessToken token = new AccessToken(livekitApiKey, livekitApiSecret);
             token.setName(displayName);
-            token.setIdentity("user-" + UUID.randomUUID());
+            token.setIdentity(participantIdentity);
             token.addGrants(new RoomJoin(true), new RoomName(roomName));
 
             String jwt = token.toJwt();
-            log.info("Created LiveKit participant token for room: {} user: {}", roomName, displayName);
+            log.info("Created LiveKit participant token for room: {} participant: {}", roomName, participantIdentity);
             return jwt;
 
         } catch (Exception e) {

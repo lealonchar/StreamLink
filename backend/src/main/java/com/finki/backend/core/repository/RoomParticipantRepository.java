@@ -24,6 +24,9 @@ public interface RoomParticipantRepository extends JpaRepository<RoomParticipant
     @Query("SELECT rp FROM RoomParticipant rp WHERE rp.room.id = :roomId AND rp.user.id = :userId AND rp.leftAt IS NULL")
     Optional<RoomParticipant> findActiveByRoomAndUser(@Param("roomId") Long roomId, @Param("userId") Long userId);
 
+    @EntityGraph(attributePaths = {"room", "user"})
+    Optional<RoomParticipant> findByRoomIdAndUserId(Long roomId, Long userId);
+
     @Query("SELECT COUNT(rp) > 0 FROM RoomParticipant rp WHERE rp.room.id = :roomId AND rp.user.id = :userId AND rp.role = :role AND rp.leftAt IS NULL")
     boolean existsActiveHost(@Param("roomId") Long roomId, @Param("userId") Long userId, @Param("role") ParticipantRole role);
 

@@ -6,7 +6,6 @@ import com.finki.backend.core.domain.RoomParticipant;
 import com.finki.backend.core.security.UserPrincipal;
 import com.finki.backend.core.service.LiveKitService;
 import com.finki.backend.core.service.RoomService;
-import com.finki.backend.core.service.UserService;
 import com.finki.backend.web.extensions.RoomExtensions;
 import com.finki.backend.web.request.CreateRoomRequest;
 import com.finki.backend.web.response.LiveKitTokenResponse;
@@ -28,7 +27,6 @@ public class RoomController {
 
     private final RoomService roomService;
     private final LiveKitService liveKitService;
-    private final UserService userService;
 
     @GetMapping
     public ResponseEntity<List<RoomResponse>> getAllActiveRooms() {
@@ -98,10 +96,14 @@ public class RoomController {
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        Room room = roomService.getRoomById(id);
-        String displayName = userService.getUserById(principal.getUserId()).getName();
+        Room room = roomService.getActiveRoomForParticipant(id, principal.getUserId());
+        String participantIdentity = "user-" + principal.getUserId();
 
-        String token = liveKitService.createParticipantToken(room.getLivekitRoomName(), displayName);
+        String token = liveKitService.createParticipantToken(
+                room.getLivekitRoomName(),
+                participantIdentity,
+                principal.getName()
+        );
 
         return ResponseEntity.ok(LiveKitTokenResponse.builder()
                 .token(token)

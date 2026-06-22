@@ -1,0 +1,63 @@
+services:
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: videochat-livekit
+    restart: unless-stopped
+    command: --dev --bind 0.0.0.0 --node-ip ${LIVEKIT_NODE_IP:-127.0.0.1}
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "7882:7882/udp"
+
+  database:
+    image: postgres:16-alpine
+    container_name: videochat-database
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: videochat
+      POSTGRES_USER: videochat
+      POSTGRES_PASSWORD: videochat_password
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U videochat -d videochat"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    container_name: videochat-backend
+    restart: unless-stopped
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/videochat
+      SPRING_DATASOURCE_USERNAME: videochat
+      SPRING_DATASOURCE_PASSWORD: videochat_password
+
+      JWT_SECRET: change-this-to-a-secure-random-secret-key-of-at-least-256-bits
+
+      LIVEKIT_URL: ${LIVEKIT_URL:-ws://localhost:7880}
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:-devkey}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:-secret}
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      database:
+        condition: service_healthy
+      livekit:
+        condition: service_started
+
+volumes:
+  postgres_data:

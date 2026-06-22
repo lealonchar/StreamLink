@@ -29,7 +29,7 @@
           <div class="detail-actions">
             @if (room()!.status === RoomStatus.ACTIVE && authService.isAuthenticated()) {
               <button class="btn btn-primary" [disabled]="actionLoading()" (click)="joinRoom()">
-                {{ actionLoading() ? 'Joining...' : 'Join Call' }}
+                {{ actionLoading() ? 'Joining...' : (isParticipant() ? 'Enter Call' : 'Join Call') }}
               </button>
             }
             @if (isHost() && room()!.status === RoomStatus.ACTIVE) {

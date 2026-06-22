@@ -44,6 +44,20 @@ public class RoomService {
                 .orElseThrow(() -> new ResourceNotFoundException("Room", roomId));
     }
 
+    @Transactional(readOnly = true)
+    public Room getActiveRoomForParticipant(Long roomId, Long userId) {
+        Room room = getRoomById(roomId);
+
+        if (room.getStatus() != RoomStatus.ACTIVE) {
+            throw new BadRequestException("Room is not active");
+        }
+
+        roomParticipantRepository.findActiveByRoomAndUser(roomId, userId)
+                .orElseThrow(() -> new ForbiddenException("You must join the room before requesting a video token"));
+
+        return room;
+    }
+
     @Transactional
     public Room createRoom(Long userId, String name, String description) {
         User user = userService.getUserById(userId);
@@ -52,9 +66,6 @@ public class RoomService {
 
         Room room = new Room(name, description, user, livekitRoomName);
         Room savedRoom = roomRepository.save(room);
-
-        RoomParticipant hostParticipant = new RoomParticipant(savedRoom, user, ParticipantRole.HOST);
-        roomParticipantRepository.save(hostParticipant);
 
         log.info("User {} created room {} with LiveKit room {}", userId, savedRoom.getId(), livekitRoomName);
         return savedRoom;
@@ -88,14 +99,23 @@ public class RoomService {
             throw new BadRequestException("Room is not active");
         }
 
-        roomParticipantRepository.findActiveByRoomAndUser(roomId, userId)
-                .ifPresent(p -> {
-                    throw new BadRequestException("You are already in this room");
-                });
-
         User user = userService.getUserById(userId);
 
-        RoomParticipant participant = new RoomParticipant(room, user, ParticipantRole.PARTICIPANT);
+        ParticipantRole role = room.getCreatedBy().getId().equals(userId)
+                ? ParticipantRole.HOST
+                : ParticipantRole.PARTICIPANT;
+
+        RoomParticipant participant = roomParticipantRepository.findByRoomIdAndUserId(roomId, userId)
+                .map(existingParticipant -> {
+                    if (existingParticipant.getLeftAt() == null) {
+                        throw new BadRequestException("You are already in this room");
+                    }
+                    existingParticipant.setLeftAt(null);
+                    existingParticipant.setRole(role);
+                    return existingParticipant;
+                })
+                .orElseGet(() -> new RoomParticipant(room, user, role));
+
         roomParticipantRepository.save(participant);
 
         log.info("User {} joined room {}", userId, roomId);

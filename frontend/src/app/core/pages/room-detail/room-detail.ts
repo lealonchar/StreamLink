@@ -31,6 +31,7 @@ export class RoomDetailPage implements OnInit {
   isLoading = signal(true);
   error = signal<string | null>(null);
   isHost = signal(false);
+  isParticipant = signal(false);
   showInviteModal = signal(false);
   actionLoading = signal(false);
 
@@ -53,7 +54,9 @@ export class RoomDetailPage implements OnInit {
     this.roomService.getRoomById(id).subscribe({
       next: (data) => {
         this.room.set(data);
-        this.isHost.set(data.createdBy.id === this.authService.currentUser()?.id);
+        const currentUserId = this.authService.currentUser()?.id;
+        this.isHost.set(data.createdBy.id === currentUserId);
+        this.isParticipant.set(data.participants.some((participant) => participant.user.id === currentUserId));
         this.isLoading.set(false);
         if (this.isHost()) {
           this.loadInvites(id);
@@ -76,6 +79,12 @@ export class RoomDetailPage implements OnInit {
   joinRoom(): void {
     const room = this.room();
     if (!room) return;
+
+    if (this.isParticipant()) {
+      this.router.navigate([RouteConstants.ROOM_CALL_ROUTE(room.id)]);
+      return;
+    }
+
     this.actionLoading.set(true);
     this.roomService.joinRoom(room.id).subscribe({
       next: () => {

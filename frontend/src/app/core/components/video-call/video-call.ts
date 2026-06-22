@@ -22,6 +22,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   private readonly roomService = inject(RoomService);
   private readonly router = inject(Router);
   private readonly elRef = inject(ElementRef);
+  private leaveRequested = false;
 
   readonly roomId = input.required<number>();
 
@@ -52,6 +53,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 
       roomInstance.on(RoomEvent.TrackSubscribed, (track, _publication, participant) => {
         if (participant.isLocal) return;
+        this.addTile(participant);
         if (track.kind === Track.Kind.Video) {
           this.handleTrackSubscribed(participant.identity, track as RemoteTrack);
         }
@@ -76,6 +78,18 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       });
 
       await roomInstance.connect(liveKitToken.serverUrl, liveKitToken.token);
+
+      // Participants that were already in the room may be available immediately
+      // after connect without producing a later ParticipantConnected event.
+      for (const participant of roomInstance.remoteParticipants.values()) {
+        this.addTile(participant);
+        for (const publication of participant.videoTrackPublications.values()) {
+          if (publication.track) {
+            this.handleTrackSubscribed(participant.identity, publication.track as RemoteTrack);
+          }
+        }
+      }
+
       await roomInstance.localParticipant.setCameraEnabled(true);
       await roomInstance.localParticipant.setMicrophoneEnabled(true);
 
@@ -99,11 +113,22 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.room()?.disconnect();
+    if (!this.leaveRequested) {
+      this.leaveRequested = true;
+      this.roomService.leaveRoom(this.roomId()).subscribe({ error: () => {} });
+    }
   }
 
-  leave(): void {
+  async leave(): Promise<void> {
+    if (this.leaveRequested) return;
+
+    this.leaveRequested = true;
     this.room()?.disconnect();
-    this.router.navigate([RouteConstants.ROOM_DETAIL_ROUTE(this.roomId())]);
+    try {
+      await lastValueFrom(this.roomService.leaveRoom(this.roomId()));
+    } finally {
+      this.router.navigate([RouteConstants.ROOM_DETAIL_ROUTE(this.roomId())]);
+    }
   }
 
   async toggleMic(): Promise<void> {
@@ -125,15 +150,21 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   }
 
   private addTile(participant: RemoteParticipant): void {
-    this.tiles.update((tiles) => [
-      ...tiles,
-      {
-        id: participant.identity,
-        isLocal: false,
-        displayName: participant.name || participant.identity || 'Guest',
-        hasVideo: false,
-      },
-    ]);
+    this.tiles.update((tiles) => {
+      if (tiles.some((tile) => tile.id === participant.identity)) {
+        return tiles;
+      }
+
+      return [
+        ...tiles,
+        {
+          id: participant.identity,
+          isLocal: false,
+          displayName: participant.name || participant.identity || 'Guest',
+          hasVideo: false,
+        },
+      ];
+    });
   }
 
   private removeTile(participantId: string): void {

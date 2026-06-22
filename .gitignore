@@ -1,0 +1,13 @@
+# Local secrets
+.env
+
+# IDE files
+.idea/
+*.iml
+
+# Build output
+backend/build/
+backend/.gradle/
+frontend/dist/
+frontend/.angular/
+frontend/node_modules/

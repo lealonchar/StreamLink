@@ -4,7 +4,7 @@ export class ApiConstants {
   }
 
   static readonly API_BASE_URL = 'http://localhost:8080';
-  static readonly API_BASE_PATH = '/api';
+  static readonly API_BASE_PATH = `${ApiConstants.API_BASE_URL}/api`;
 
   static readonly AUTH_PATH = `${ApiConstants.API_BASE_PATH}/auth`;
   static readonly ROOMS_PATH = `${ApiConstants.API_BASE_PATH}/rooms`;
