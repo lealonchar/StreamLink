@@ -59,5 +59,17 @@ services:
       livekit:
         condition: service_started
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: videochat-frontend
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    depends_on:
+      backend:
+        condition: service_started
+
 volumes:
   postgres_data:
