@@ -10,6 +10,12 @@ A real-time video chat application where users can create rooms, join calls, and
 
 ---
 
+## Video demonstration
+
+[![Watch the demo](https://img.youtube.com/vi/eGFG6M13ayM/maxresdefault.jpg)](https://www.youtube.com/watch?v=eGFG6M13ayM)
+
+---
+
 ## Features
 
 - **Video Rooms** — Create and join video rooms powered by LiveKit.
