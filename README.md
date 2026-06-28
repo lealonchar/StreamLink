@@ -12,7 +12,7 @@ A real-time video chat application where users can create rooms, join calls, and
 
 ## Video demonstration
 
-[![Watch the demo](https://img.youtube.com/vi/eGFG6M13ayM/maxresdefault.jpg)](https://www.youtube.com/watch?v=eGFG6M13ayM)
+[![Watch the demo](https://img.youtube.com/vi/VIRhzxo7tZo/maxresdefault.jpg)](https://www.youtube.com/watch?v=VIRhzxo7tZo)
 
 ---
 
