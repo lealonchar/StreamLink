@@ -27,5 +27,6 @@ export class ApiConstants {
   static readonly ROOM_INVITES_URL = (roomId: number) => `${ApiConstants.ROOMS_PATH}/${roomId}/invites`;
   static readonly INVITE_BY_TOKEN_URL = (token: string) => `${ApiConstants.INVITES_PATH}/${token}`;
   static readonly JOIN_BY_INVITE_URL = (token: string) => `${ApiConstants.INVITES_PATH}/${token}/join`;
+  static readonly JOIN_BY_INVITE_AS_GUEST_URL = (token: string) => `${ApiConstants.INVITES_PATH}/${token}/join/guest`;
   static readonly REVOKE_INVITE_URL = (inviteId: number) => `${ApiConstants.INVITES_PATH}/${inviteId}`;
 }

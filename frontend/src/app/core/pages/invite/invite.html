@@ -31,7 +31,18 @@
               {{ isJoining() ? 'Joining...' : 'Accept Invite' }}
             </button>
           } @else {
-            <a [routerLink]="['/' + RouteConstants.LOGIN]" class="btn btn-primary">Log in to Join</a>
+            <div class="guest-join">
+              <input
+                type="text"
+                [(ngModel)]="guestName"
+                [maxlength]="AppConstants.MAX_NAME_LENGTH"
+                placeholder="Enter your name"
+                class="guest-name-input" />
+              <button class="btn btn-primary" [disabled]="isJoining() || invite()!.status !== InviteStatus.ACTIVE" (click)="joinAsGuest()">
+                {{ isJoining() ? 'Joining...' : 'Join as Guest' }}
+              </button>
+            </div>
+            <a [routerLink]="['/' + RouteConstants.LOGIN]" class="login-link">Or log in to join</a>
           }
         </div>
       </div>

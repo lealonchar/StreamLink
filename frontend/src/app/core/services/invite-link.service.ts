@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiConstants } from '../../constants/api.constants';
+import { AuthResponse } from './response/auth.response';
 import { CreateInviteRequest } from './request/create-invite.request';
 import { InviteLinkResponse } from './response/invite-link.response';
 import { RoomResponse } from './response/room.response';
@@ -26,6 +27,10 @@ export class InviteLinkService {
 
   joinByInvite(token: string): Observable<RoomResponse> {
     return this.http.post<RoomResponse>(ApiConstants.JOIN_BY_INVITE_URL(token), {});
+  }
+
+  joinByInviteAsGuest(token: string, name: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(ApiConstants.JOIN_BY_INVITE_AS_GUEST_URL(token), { name });
   }
 
   revokeInvite(inviteId: number): Observable<void> {

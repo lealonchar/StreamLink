@@ -21,6 +21,7 @@ A real-time video chat application where users can create rooms, join calls, and
 - **Video Rooms** — Create and join video rooms powered by LiveKit.
 - **Public & Private Rooms** — Choose whether your room appears in Explore or is accessible only via invite link.
 - **Invite Links** — Generate expiring, usage-limited invite links for private rooms (or any room).
+- **Anonymous Guest Join** — People with an invite link can join a private room as a guest without registering.
 - **Host Controls** — Room creators can manage invites, toggle visibility, and close rooms.
 - **Explore Tab** — Browse public active rooms and join the conversation.
 - **My Rooms** — Keep track of all rooms you created.

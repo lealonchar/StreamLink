@@ -50,6 +50,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, ApiConstants.AUTH_PATH + "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, ApiConstants.INVITES_PATH + "/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, ApiConstants.INVITES_PATH + "/*/join/guest").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated()

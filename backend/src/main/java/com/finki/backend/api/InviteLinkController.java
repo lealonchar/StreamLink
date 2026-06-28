@@ -9,6 +9,8 @@ import com.finki.backend.core.service.RoomService;
 import com.finki.backend.web.extensions.InviteLinkExtensions;
 import com.finki.backend.web.extensions.RoomExtensions;
 import com.finki.backend.web.request.CreateInviteRequest;
+import com.finki.backend.web.request.JoinInviteAsGuestRequest;
+import com.finki.backend.web.response.AuthResponse;
 import com.finki.backend.web.response.InviteLinkResponse;
 import com.finki.backend.web.response.RoomResponse;
 import jakarta.validation.Valid;
@@ -73,6 +75,15 @@ public class InviteLinkController {
     ) {
         Room room = inviteLinkService.joinByInvite(token, principal.getUserId());
         return ResponseEntity.ok(RoomExtensions.toResponse(room));
+    }
+
+    @PostMapping(ApiConstants.INVITES_PATH + "/{token}/join/guest")
+    public ResponseEntity<AuthResponse> joinByInviteAsGuest(
+            @PathVariable String token,
+            @Valid @RequestBody JoinInviteAsGuestRequest request
+    ) {
+        AuthResponse response = inviteLinkService.joinByInviteAsGuest(token, request.name());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping(ApiConstants.INVITES_PATH + "/{inviteId}")

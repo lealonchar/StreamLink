@@ -36,11 +36,7 @@ export class AuthService {
     this.isAuthenticated.set(false);
   }
 
-  getToken(): string | null {
-    return localStorage.getItem(AppConstants.TOKEN_STORAGE_KEY);
-  }
-
-  private setAuth(response: AuthResponse): void {
+  setAuthFromResponse(response: AuthResponse): void {
     localStorage.setItem(AppConstants.TOKEN_STORAGE_KEY, response.token);
     const user: UserResponse = {
       id: response.user_id,
@@ -51,6 +47,14 @@ export class AuthService {
     localStorage.setItem(AppConstants.USER_STORAGE_KEY, JSON.stringify(user));
     this.currentUser.set(user);
     this.isAuthenticated.set(true);
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(AppConstants.TOKEN_STORAGE_KEY);
+  }
+
+  private setAuth(response: AuthResponse): void {
+    this.setAuthFromResponse(response);
   }
 
   private loadUser(): UserResponse | null {

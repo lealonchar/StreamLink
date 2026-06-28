@@ -13,9 +13,13 @@ import com.finki.backend.core.exception.ResourceNotFoundException;
 import com.finki.backend.core.exception.UnauthorizedException;
 import com.finki.backend.core.repository.InviteLinkRepository;
 import com.finki.backend.core.repository.RoomParticipantRepository;
+import com.finki.backend.core.repository.UserRepository;
+import com.finki.backend.core.security.JwtService;
+import com.finki.backend.web.response.AuthResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +27,7 @@ import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -33,6 +38,9 @@ public class InviteLinkService {
     private final RoomParticipantRepository roomParticipantRepository;
     private final RoomService roomService;
     private final UserService userService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Transactional(readOnly = true)
@@ -75,6 +83,53 @@ public class InviteLinkService {
 
     @Transactional
     public Room joinByInvite(String token, Long userId) {
+        InviteLink invite = validateInvite(token);
+        Room room = invite.getRoom();
+
+        User user = userService.getUserById(userId);
+
+        roomParticipantRepository.findActiveByRoomAndUser(room.getId(), userId)
+                .ifPresent(p -> {
+                    throw new BadRequestException("You are already in this room");
+                });
+
+        addParticipantAndConsumeInvite(room, user, invite);
+
+        log.info("User {} joined room {} via invite {}", userId, room.getId(), token);
+        return room;
+    }
+
+    @Transactional
+    public AuthResponse joinByInviteAsGuest(String token, String guestName) {
+        InviteLink invite = validateInvite(token);
+        Room room = invite.getRoom();
+
+        String username = generateGuestUsername();
+        while (userRepository.existsByUsername(username)) {
+            username = generateGuestUsername();
+        }
+
+        String encodedPassword = passwordEncoder.encode(UUID.randomUUID().toString());
+        User guest = new User(username, encodedPassword, guestName.trim());
+        userRepository.save(guest);
+
+        addParticipantAndConsumeInvite(room, guest, invite);
+
+        String jwt = jwtService.generateToken(guest.getId(), guest.getUsername());
+
+        log.info("Guest user {} joined room {} via invite {}", guest.getId(), room.getId(), token);
+
+        return AuthResponse.builder()
+                .token(jwt)
+                .tokenType("Bearer")
+                .expiresIn(86400L)
+                .userId(guest.getId())
+                .username(guest.getUsername())
+                .name(guest.getName())
+                .build();
+    }
+
+    private InviteLink validateInvite(String token) {
         InviteLink invite = getInviteByToken(token);
 
         if (invite.getStatus() != InviteStatus.ACTIVE) {
@@ -99,9 +154,11 @@ public class InviteLinkService {
             throw new BadRequestException("This room is no longer active");
         }
 
-        User user = userService.getUserById(userId);
+        return invite;
+    }
 
-        roomParticipantRepository.findActiveByRoomAndUser(room.getId(), userId)
+    private void addParticipantAndConsumeInvite(Room room, User user, InviteLink invite) {
+        roomParticipantRepository.findActiveByRoomAndUser(room.getId(), user.getId())
                 .ifPresent(p -> {
                     throw new BadRequestException("You are already in this room");
                 });
@@ -117,9 +174,6 @@ public class InviteLinkService {
             updated.setUsedAt(Instant.now());
             inviteLinkRepository.save(updated);
         }
-
-        log.info("User {} joined room {} via invite {}", userId, room.getId(), token);
-        return room;
     }
 
     @Transactional
@@ -151,5 +205,9 @@ public class InviteLinkService {
             sb.append(AppConstants.INVITE_TOKEN_ALPHABET.charAt(secureRandom.nextInt(AppConstants.INVITE_TOKEN_ALPHABET.length())));
         }
         return sb.toString();
+    }
+
+    private String generateGuestUsername() {
+        return "guest-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12);
     }
 }
