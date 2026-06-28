@@ -97,26 +97,18 @@ jobs:
   deploy:
     needs: publish-images
     if: github.event_name == 'push' && vars.ENABLE_CD == 'true'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v4
-
-      - name: Configure cluster access
-        shell: bash
-        run: |
-          mkdir -p "$HOME/.kube"
-          echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > "$HOME/.kube/config"
-          chmod 600 "$HOME/.kube/config"
-
       - name: Apply manifests and deploy new images
-        shell: bash
+        shell: powershell
         run: |
+          $owner = "${{ github.repository_owner }}".ToLower()
+          $sha = "${{ github.sha }}"
           kubectl apply -k k8s
-          kubectl -n streamlink set image deployment/backend backend=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/chatrix-backend:sha-${GITHUB_SHA}
-          kubectl -n streamlink set image deployment/frontend frontend=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/chatrix-frontend:sha-${GITHUB_SHA}
+          kubectl -n streamlink set image deployment/backend backend=ghcr.io/$owner/chatrix-backend:sha-$sha
+          kubectl -n streamlink set image deployment/frontend frontend=ghcr.io/$owner/chatrix-frontend:sha-$sha
           kubectl -n streamlink rollout status deployment/backend --timeout=180s
           kubectl -n streamlink rollout status deployment/frontend --timeout=180s

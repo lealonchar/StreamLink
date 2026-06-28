@@ -22,7 +22,7 @@ spec:
             - until pg_isready -h postgres -p 5432; do sleep 2; done
       containers:
         - name: backend
-          image: ghcr.io/beathersppark/chatrix-backend:latest
+          image: ghcr.io/lealonchar/chatrix-backend:latest
           imagePullPolicy: Always
           ports:
             - name: http

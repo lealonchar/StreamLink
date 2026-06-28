@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: ghcr.io/beathersppark/chatrix-frontend:latest
+          image: ghcr.io/lealonchar/chatrix-frontend:latest
           imagePullPolicy: Always
           ports:
             - name: http
